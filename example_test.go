@@ -6,7 +6,7 @@ import (
 	"github.com/codesoap/backoff"
 )
 
-func Example_FailProgression() {
+func Example_failProgression() {
 	myActionThatMightFail := func() bool {
 		// Emulate an action that always fails for demonstration purposes:
 		return false
@@ -36,7 +36,7 @@ func Example_FailProgression() {
 	// #12: Skipped action.
 }
 
-func Example_CappedFailProgression() {
+func Example_cappedFailProgression() {
 	myActionThatMightFail := func() bool {
 		// Emulate an action that always fails for demonstration purposes:
 		return false
@@ -66,7 +66,7 @@ func Example_CappedFailProgression() {
 	// #12: Executed action.
 }
 
-func Example_SlowFailProgression() {
+func Example_slowFailProgression() {
 	myActionThatMightFail := func() bool {
 		// Emulate an action that always fails for demonstration purposes:
 		return false
@@ -96,7 +96,7 @@ func Example_SlowFailProgression() {
 	// #12: Skipped action.
 }
 
-func Example_WithError() {
+func Example_withError() {
 	// Emulate a simple action function for demonstration purposes:
 	myActionThatMightFail := func(someParameter int) error {
 		if someParameter > 3 {
