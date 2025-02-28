@@ -60,6 +60,7 @@ func (l *Limiter) Try(action func() bool) bool {
 // Reset resets any progression in the limits and ensures that the
 // passed action is not skipped at the next call of l.Try.
 func (l *Limiter) Reset() {
+	l.skip = 0
 	l.failsInARow = 0
 	l.nextSkipCnt = 1
 }
