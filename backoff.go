@@ -19,7 +19,6 @@ type Limiter struct {
 
 	skip        int
 	failsInARow int
-	nextSkipCnt int
 }
 
 // Try calls action if no limit is currently active. If action returns
@@ -38,21 +37,12 @@ func (l *Limiter) Try(action func() bool) bool {
 	if success := action(); success {
 		l.Reset()
 	} else {
+		doubleAfterNFails := max(l.DoubleAfterNFails, 1)
+		l.skip = 1 << (l.failsInARow / doubleAfterNFails)
+		if l.MaxSkipsBeforeRetry > 0 {
+			l.skip = min(l.skip, l.MaxSkipsBeforeRetry)
+		}
 		l.failsInARow++
-		if l.nextSkipCnt == 0 {
-			l.nextSkipCnt = 1
-		}
-		l.skip = l.nextSkipCnt
-		doubleAfterNFails := l.DoubleAfterNFails
-		if doubleAfterNFails < 1 {
-			doubleAfterNFails = 1
-		}
-		if l.failsInARow%doubleAfterNFails == 0 {
-			l.nextSkipCnt <<= 1
-			if l.MaxSkipsBeforeRetry > 0 && l.nextSkipCnt > l.MaxSkipsBeforeRetry {
-				l.nextSkipCnt = l.MaxSkipsBeforeRetry
-			}
-		}
 	}
 	return true
 }
@@ -62,5 +52,4 @@ func (l *Limiter) Try(action func() bool) bool {
 func (l *Limiter) Reset() {
 	l.skip = 0
 	l.failsInARow = 0
-	l.nextSkipCnt = 1
 }
