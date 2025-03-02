@@ -12,7 +12,7 @@ func Example_failProgression() {
 		return false
 	}
 
-	limiter := backoff.Limiter{}
+	limiter := backoff.FailLimiter{}
 	for i := 1; i <= 12; i++ {
 		tried := limiter.Try(myActionThatMightFail)
 		if tried {
@@ -42,7 +42,7 @@ func Example_cappedFailProgression() {
 		return false
 	}
 
-	limiter := backoff.Limiter{MaxSkipsBeforeRetry: 2}
+	limiter := backoff.FailLimiter{SkipLimit: 2}
 	for i := 1; i <= 12; i++ {
 		tried := limiter.Try(myActionThatMightFail)
 		if tried {
@@ -72,7 +72,7 @@ func Example_slowFailProgression() {
 		return false
 	}
 
-	limiter := backoff.Limiter{DoubleAfterNFails: 2}
+	limiter := backoff.FailLimiter{BackoffInterval: 2}
 	for i := 1; i <= 12; i++ {
 		tried := limiter.Try(myActionThatMightFail)
 		if tried {
@@ -105,7 +105,7 @@ func Example_withError() {
 		return nil
 	}
 
-	limiter := backoff.Limiter{}
+	limiter := backoff.FailLimiter{}
 	for i := 1; i <= 12; i++ {
 		// If the tried action requires parameters or returns an error or
 		// other values, which are needed for further steps, they can be

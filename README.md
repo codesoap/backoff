@@ -25,7 +25,7 @@ func myActionThatMightFail() bool {
 }
 
 func main() {
-	limiter := backoff.Limiter{}
+	limiter := backoff.FailLimiter{}
 	for i := 1; i <= 12; i++ {
 		tried := limiter.Try(myActionThatMightFail)
 		if tried {

@@ -2,20 +2,20 @@
 // implementation.
 package backoff
 
-// A Limiter limits the amount of calls to a function, if the function
-// fails. Controlled by its DoubleAfterNFails and MaxSkipsBeforeRetry
+// A FailLimiter limits the amount of calls to a function, if the
+// function fails. Controlled by its BackoffInterval and SkipLimit
 // fields, the amount of calls to the function become increasingly rare,
 // if the function continues to fail.
-type Limiter struct {
-	// DoubleAfterNFails determines how many times an action has to fail in
-	// a row before the amount of skips between attempts is doubled.
+type FailLimiter struct {
+	// BackoffInterval determines how many times an action has to fail in a
+	// row before the amount of skips between attempts is doubled.
 	//
-	// If DoubleAfterNFails is 0 or smaller, it will be treated as being 1.
-	DoubleAfterNFails int
+	// If BackoffInterval is 0 or smaller, it will be treated as being 1.
+	BackoffInterval int
 
-	// MaxSkipsBeforeRetry defines the maximum amount of times an action is
-	// skipped before retrying it. Will be ignored if it is 0.
-	MaxSkipsBeforeRetry int
+	// SkipLimit defines the maximum amount of times an action is
+	// skipped before retrying it. It will be ignored if it is 0.
+	SkipLimit int
 
 	skip        int
 	failsInARow int
@@ -25,31 +25,31 @@ type Limiter struct {
 // true, any progression in the limit will be reset. If action returns
 // false, the next call(s) of Try will not call action. If action
 // continuously fails, the calls of action will become increasingly rare
-// according to l.DoubleAfterNFails and l.MaxSkipsBeforeRetry.
+// according to fl.BackoffInterval and fl.SkipLimit.
 //
 // Try returns true, if action has been called and false, if a limit
 // prevented the call.
-func (l *Limiter) Try(action func() bool) bool {
-	if l.skip > 0 {
-		l.skip--
+func (fl *FailLimiter) Try(action func() bool) bool {
+	if fl.skip > 0 {
+		fl.skip--
 		return false
 	}
 	if success := action(); success {
-		l.Reset()
+		fl.Reset()
 	} else {
-		doubleAfterNFails := max(l.DoubleAfterNFails, 1)
-		l.skip = 1 << (l.failsInARow / doubleAfterNFails)
-		if l.MaxSkipsBeforeRetry > 0 {
-			l.skip = min(l.skip, l.MaxSkipsBeforeRetry)
+		backoffInterval := max(fl.BackoffInterval, 1)
+		fl.skip = 1 << (fl.failsInARow / backoffInterval)
+		if fl.SkipLimit > 0 {
+			fl.skip = min(fl.skip, fl.SkipLimit)
 		}
-		l.failsInARow++
+		fl.failsInARow++
 	}
 	return true
 }
 
 // Reset resets any progression in the limits and ensures that the
-// passed action is not skipped at the next call of l.Try.
-func (l *Limiter) Reset() {
-	l.skip = 0
-	l.failsInARow = 0
+// passed action is not skipped at the next call of fl.Try.
+func (fl *FailLimiter) Reset() {
+	fl.skip = 0
+	fl.failsInARow = 0
 }
