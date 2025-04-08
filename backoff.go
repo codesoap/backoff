@@ -1,5 +1,4 @@
-// Package backoff provides a simple and performant exponential backoff
-// implementation.
+// Package backoff provides a simple exponential backoff implementation.
 package backoff
 
 // A FailLimiter limits the amount of calls to a function, if the
