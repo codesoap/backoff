@@ -5,6 +5,8 @@ package backoff
 // function fails. Controlled by its BackoffInterval and SkipLimit
 // fields, the amount of calls to the function become increasingly rare,
 // if the function continues to fail.
+//
+// A FailLimiter must not be copied after the first call to Try.
 type FailLimiter struct {
 	// BackoffInterval determines how many times an action has to fail in a
 	// row before the amount of skips between attempts is doubled.

@@ -8,7 +8,7 @@ import (
 
 func TestReset(t *testing.T) {
 	dummyAction := func() bool { return false }
-	limiter := backoff.FailLimiter{}
+	limiter := &backoff.FailLimiter{}
 	limiter.Try(dummyAction)
 	limiter.Reset()
 	tried := limiter.Try(dummyAction)
